@@ -16,10 +16,17 @@ class UnsupportedMachineError(Exception):
 
 
 def compile_mpy(source, dest, name=None, optim=3):
+    """
+    Compile a .py to an .mpy
+
+    optim is the level of optimisation, set to 0 in order to debug
+    """
     global autompy
     if autompy is None:
         detection = detect_board()[2]
         autompy = fetch_mpy([detection[0], detection[1], detection[2]], detection[3])
+    if autompy is None:
+        raise OSError("Compilation failed")
     if uname().system == "Linux":
         slash = "/"
         copy = "rsync -h"
@@ -35,7 +42,7 @@ def compile_mpy(source, dest, name=None, optim=3):
         raise OSError("Compilation failed")
 
 
-def fetch_mpy(version=[8, 0, 0], special=None, force=False):
+def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False):
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross"
     sys = uname().system
     mac = uname().machine
@@ -81,7 +88,8 @@ def fetch_mpy(version=[8, 0, 0], special=None, force=False):
         print("Same version mpy-cross exists, skipping download")
         return target_name
     else:
-        print(f"Downloading {target_name}")
+        if verbose:
+            print(f"Downloading {target_name} from:\n{url}")
         try:
             request.urlretrieve(url, target_name)
             chmod(target_name, 0o755)
