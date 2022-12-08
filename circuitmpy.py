@@ -1,8 +1,10 @@
-from os import system, mkdir, path, popen, environ
+from os import system, mkdir, path, popen, environ, chmod
 from platform import uname
 from getpass import getuser
 from urllib import request
 from itertools import product
+
+autompy = None
 
 
 class UnsupportedMachineError(Exception):
@@ -13,12 +15,24 @@ class UnsupportedMachineError(Exception):
         return f"The machine type {self.machine_name} is not supported"
 
 
-def compile_mpy(source, dest, optim=3):
-    pass
-
-
-def clean_mpy():
-    pass
+def compile_mpy(source, dest, name=None, optim=3):
+    global autompy
+    if autompy is None:
+        detection = detect_board()[2]
+        autompy = fetch_mpy([detection[0], detection[1], detection[2]], detection[3])
+    if uname().system == "Linux":
+        slash = "/"
+        copy = "rsync -h"
+    else:
+        slash = "\\"
+        copy = "copy"
+    if name is None:
+        name = source[source.rfind(slash) + 1 : -3]
+    a = system(
+        f"./{autompy} {source} -s {name} -v -O{optim} -o {dest}".replace("/", slash)
+    )
+    if a != 0:
+        raise OSError("Compilation failed")
 
 
 def fetch_mpy(version=[8, 0, 0], special=None, force=False):
@@ -67,9 +81,10 @@ def fetch_mpy(version=[8, 0, 0], special=None, force=False):
         print("Same version mpy-cross exists, skipping download")
         return target_name
     else:
-        print(f"Downloading:\n{url}\n\nTo: {target_name}")
+        print(f"Downloading {target_name}")
         try:
             request.urlretrieve(url, target_name)
+            chmod(target_name, 0o755)
             return target_name
         except:
             print("Download Failed!")
