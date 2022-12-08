@@ -104,7 +104,7 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = None
-    version = [8, 0, 0]  # assume 8.x on wifi boards
+    version = [8, 0, 0, None]  # assume 8.x on wifi boards
 
     try:
         board = environ["BOARD"]
@@ -147,8 +147,9 @@ def detect_board():
             version = magic[0][23 : magic[0].find(" on ")]
             del magic
 
-    sp = version[6:]
-    if sp == "":
-        sp = None
-    version = [int(version[0]), int(version[2]), int(version[4]), sp]
+    if isinstance(version, str):
+        sp = version[6:]
+        if sp == "":
+            sp = None
+        version = [int(version[0]), int(version[2]), int(version[4]), sp]
     return [boardpath, board, version]
