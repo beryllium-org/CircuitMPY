@@ -103,11 +103,11 @@ def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False):
 def detect_board():
     ami = getuser()
     boardpath = None
-    board = ""
+    board = None
     version = [8, 0, 0]  # assume 8.x on wifi boards
 
     try:
-        board = environ["no_install"]
+        board = environ["BOARD"]
         boardpath = "build_" + board
         try:
             mkdir(boardpath)
@@ -116,17 +116,18 @@ def detect_board():
     except KeyError:
         pass
 
-    prefixes = [f"media/{ami}", "media", "Volumes", "Volumes"]
-    directories = [
-        "CIRCUITPY",
-        "LJINUX",
-    ]
+    if (board is None) and (uname().system != "Windows"):
+        prefixes = [f"media/{ami}", "media", "Volumes", "Volumes"]
+        directories = [
+            "CIRCUITPY",
+            "LJINUX",
+        ]
 
-    for prefix, directory in product(prefixes, directories):
-        p = f"/{prefix}/{directory}"
-        if path.exists(p):
-            boardpath = p
-            break
+        for prefix, directory in product(prefixes, directories):
+            p = f"/{prefix}/{directory}"
+            if path.exists(p):
+                boardpath = p
+                break
 
     if (boardpath is None) and (uname().system == "Windows"):
         print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
@@ -136,7 +137,7 @@ def detect_board():
             if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "LJINUX"]:
                 boardpath = f"%s" % _
             vol.close()
-            if boardpath != "":
+            if boardpath is not None:
                 break
 
     if (boardpath is not None) and (not boardpath.startswith("build_")):
