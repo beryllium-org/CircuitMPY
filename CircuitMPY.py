@@ -2,6 +2,7 @@ from os import system, mkdir, path, popen, environ
 from platform import uname
 from getpass import getuser
 from urllib import request
+from itertools import product
 
 
 class UnsupportedMachineError(Exception):
@@ -79,7 +80,7 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = ""
-    version = "8"  # assume 8.x on wifi boards
+    version = [8, 0, 0]  # assume 8.x on wifi boards
 
     try:
         board = environ["no_install"]
@@ -91,23 +92,19 @@ def detect_board():
     except KeyError:
         pass
 
-    prefixes = [f"/media/{ami}", f"/media/{ami}", "/media", "/Volumes", "/Volumes"]
-
+    prefixes = [f"media/{ami}", "media", "Volumes", "Volumes"]
     directories = [
-        f"{ami}/LJINUX",
-        f"{ami}/CIRCUITPY",
         "CIRCUITPY",
         "LJINUX",
-        "CIRCUITPY",
     ]
 
-    for prefix, directory in zip(prefixes, directories):
-        p = f"{prefix}/{directory}"
+    for prefix, directory in product(prefixes, directories):
+        p = f"/{prefix}/{directory}"
         if path.exists(p):
             boardpath = p
             break
 
-    if boardpath is None and uname().system == "Windows":
+    if (boardpath is None) and (uname().system == "Windows"):
         print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
         drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
         for _ in drives:
@@ -118,10 +115,15 @@ def detect_board():
             if boardpath != "":
                 break
 
-    if (not boardpath == "") and (not boardpath.startswith("build_")):
+    if (boardpath is not None) and (not boardpath.startswith("build_")):
         with open(f"{boardpath}/boot_out.txt", "r") as boot_out:
             magic = boot_out.readlines()
             board = magic[1][9:-1]
             version = magic[0][23 : magic[0].find(" on ")]
             del magic
+
+    sp = version[6:]
+    if sp == "":
+        sp = None
+    version = [int(version[0]), int(version[2]), int(version[4]), sp]
     return [boardpath, board, version]
