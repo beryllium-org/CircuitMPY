@@ -1,6 +1,7 @@
 # CircuitMPY
 A Python module for CircuitPython MPY management.<br />
 (Pronounced "circuit empire")<br />
+<br />
 Features board detection, CircuitPython version detection and automatic mpy-cross downloading.<br />
 (System arch is also detected automatically)<br />
 <br />
