@@ -85,7 +85,8 @@ def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False):
         target_name += ".exe"
 
     if path.exists(target_name) and not force:
-        print("Same version mpy-cross exists, skipping download")
+        if verbose:
+            print("Same version mpy-cross exists, skipping download")
         return target_name
     else:
         if verbose:
