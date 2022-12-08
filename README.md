@@ -1,5 +1,5 @@
 # CircuitMPY
-An automatic mpy-cross management script in python.
+An automatic mpy-cross management script in python.<br />
 (Pronounced "circuit empire")<br />
 <br />
 To be used as a project submodule.<br />
