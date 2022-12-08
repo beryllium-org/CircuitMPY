@@ -1,6 +1,6 @@
 # CircuitMPY
-An automatic mpy builder for ciruitpython 7.x and 8.x
+An automatic mpy-cross management script in python.
 (Pronounced "circuit empire")
 
 To be used as a project submodule.
-Compatible with linux and mac os.
+Compatible with Linux and Mac OS and Windows (Windows is untested and probably broken).
