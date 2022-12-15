@@ -117,7 +117,7 @@ def detect_board():
         pass
 
     if (board is None) and (uname().system != "Windows"):
-        prefixes = [f"media/{ami}", "media", "Volumes", "Volumes"]
+        prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
         directories = [
             "CIRCUITPY",
             "LJINUX",
