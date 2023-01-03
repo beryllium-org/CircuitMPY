@@ -24,7 +24,12 @@ def compile_mpy(source, dest, name=None, optim=3):
     global autompy
     if autompy is None:
         detection = detect_board()[2]
-        autompy = fetch_mpy([detection[0], detection[1], detection[2]], detection[3])
+        if not circuitmpy.detect_board()[2][3].endswith("-dirty"):
+            autompy = fetch_mpy(
+                [detection[0], detection[1], detection[2]], detection[3]
+            )
+        else:  # build is dirty, we can't fetch exact mpy-cross, fetch defaults
+            autompy = fetch_mpy()
     if autompy is None:
         raise OSError("Compilation failed")
     if uname().system == "Linux":
