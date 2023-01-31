@@ -47,7 +47,9 @@ def compile_mpy(source, dest, name=None, optim=3):
         raise OSError("Compilation failed")
 
 
-def fetch_mpy(version=[8, 0, 0], special="beta.6", force=False, verbose=False):
+def fetch_mpy(
+    version=[8, 0, 0], special="rc.1", force=False, verbose=False, retry=False
+):
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross"
     sys = uname().system
     mac = uname().machine
@@ -101,8 +103,15 @@ def fetch_mpy(version=[8, 0, 0], special="beta.6", force=False, verbose=False):
             chmod(target_name, 0o755)
             return target_name
         except:
-            print("Download Failed!")
-            return None
+            if not retry:
+                print(
+                    "Download failed, retrying with known good mpy-cross url instead."
+                )
+                res = fetch_mpy(retry=True)
+                return res
+            else:
+                print("Download failed!")
+                return None
 
 
 def detect_board():
