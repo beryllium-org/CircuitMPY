@@ -48,7 +48,7 @@ def compile_mpy(source, dest, name=None, optim=3):
 
 
 def fetch_mpy(
-    version=[8, 0, 0], special="rc.1", force=False, verbose=False, retry=False
+    version=[8, 0, 0], special="rc.2", force=False, verbose=False, retry=False
 ):
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross"
     sys = uname().system
@@ -118,7 +118,7 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = None
-    version = [8, 0, 0, "beta.6"]  # assume 8.x on wifi boards
+    version = [8, 0, 0, "rc.2"]  # assume 8.x on wifi boards
 
     try:
         board = environ["BOARD"]
