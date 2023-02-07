@@ -47,9 +47,7 @@ def compile_mpy(source, dest, name=None, optim=3):
         raise OSError("Compilation failed")
 
 
-def fetch_mpy(
-    version=[8, 0, 0], special="rc.2", force=False, verbose=False, retry=False
-):
+def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False, retry=False):
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross"
     sys = uname().system
     mac = uname().machine
@@ -118,7 +116,7 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = None
-    version = [8, 0, 0, "rc.2"]  # assume 8.x on wifi boards
+    version = [8, 0, 0, None]  # assume 8.x on wifi boards
 
     try:
         board = environ["BOARD"]
