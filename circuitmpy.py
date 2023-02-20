@@ -24,7 +24,7 @@ def compile_mpy(source, dest, name=None, optim=3):
     global autompy
     if autompy is None:
         detection = detect_board()[2]
-        if not detection[3].endswith("-dirty"):
+        if (detection[3] is not None) and (not detection[3].endswith("-dirty")):
             autompy = fetch_mpy(
                 [detection[0], detection[1], detection[2]], detection[3]
             )
