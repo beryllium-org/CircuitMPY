@@ -48,31 +48,36 @@ def compile_mpy(source, dest, name=None, optim=3):
 
 
 def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False, retry=False):
-    url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross"
+    url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross/"
     sys = uname().system
     mac = uname().machine
 
     # Url creation based on machine
     if sys == "Linux":
-        url += ".static-"
+        url += "linux-"
+        appen = ".static"
         if mac == "aarch64":
-            url += mac
+            url += f"{mac}/mpy-cross-linux-aarch64-"
+            appen += f"-{mac}"
         elif mac == "x86_64":
-            url += "amd64-linux"
+            url += "amd64/mpy-cross-linux-amd64-"
         elif mac == "armv7l":
-            url += "raspbian"
+            url += "raspbian/mpy-cross-linux-raspbian-"
+            appen += f"-raspbian"
         else:
             raise UnsupportedMachineError(f"{sys}_{mac}")
         url += f"-{version[0]}.{version[1]}.{version[2]}"
         if special is not None:
             url += f"-{special}"
+        url += appen
+        del appen
     elif sys == "Windows":
-        url += f".static-x64-windows-{version[0]}.{version[1]}.{version[2]}"
+        url += f"windows/mpy-cross-windows-{version[0]}.{version[1]}.{version[2]}"
         if special is not None:
             url += f"-{special}"
-        url += ".exe"
+        url += ".static.exe"
     elif sys == "Darwin":
-        url += f"-macos-11-{version[0]}.{version[1]}.{version[2]}"
+        url += f"macos-11/mpy-cross-macos-11-{version[0]}.{version[1]}.{version[2]}"
         if special is not None:
             url += f"-{special}"
         if mac == "arm64":
