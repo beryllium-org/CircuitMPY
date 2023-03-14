@@ -47,8 +47,8 @@ def compile_mpy(source, dest, name=None, optim=3):
         raise OSError("Compilation failed")
 
 
-def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False, retry=False):
-    url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/mpy-cross/"
+def fetch_mpy(version=[8, 1, 0], special="beta.0", force=False, verbose=False, retry=False):
+    url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/"
     sys = uname().system
     mac = uname().machine
 
@@ -66,7 +66,7 @@ def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False, retry
             appen += f"-raspbian"
         else:
             raise UnsupportedMachineError(f"{sys}_{mac}")
-        url += f"-{version[0]}.{version[1]}.{version[2]}"
+        url += f"{version[0]}.{version[1]}.{version[2]}"
         if special is not None:
             url += f"-{special}"
         url += appen
@@ -110,7 +110,7 @@ def fetch_mpy(version=[8, 0, 0], special=None, force=False, verbose=False, retry
                 print(
                     "Download failed, retrying with known good mpy-cross url instead."
                 )
-                res = fetch_mpy(retry=True)
+                res = fetch_mpy(retry=True, verbose=verbose)
                 return res
             else:
                 print("Download failed!")
@@ -121,7 +121,7 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = None
-    version = [8, 0, 0, None]  # assume 8.x on wifi boards
+    version = [8, 1, 0, "beta.0"]  # assume 8.x on wifi boards
 
     try:
         board = environ["BOARD"]
