@@ -121,7 +121,7 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = None
-    version = [8, 1, 0, "beta.0"]  # assume 8.x on wifi boards
+    version = [8, 1, 0, ""]  # assume 8.x on wifi boards
 
     try:
         board = environ["BOARD"]
