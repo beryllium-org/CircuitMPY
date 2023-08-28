@@ -122,6 +122,7 @@ def detect_board():
     boardpath = None
     board = None
     version = [8, 1, 0, None]  # assume 8.1
+    version_override = None
 
     try:
         board = environ["BOARD"]
@@ -130,6 +131,11 @@ def detect_board():
             mkdir(boardpath)
         except:
             pass
+    except KeyError:
+        pass
+
+    try:
+        version_override = environ["MPYVER"]
     except KeyError:
         pass
 
@@ -164,7 +170,15 @@ def detect_board():
             version = magic[0][23 : magic[0].find(" on ")]
             del magic
 
-    if isinstance(version, str):
+    if version_override is not None:
+        version[3] = None
+        if version_override.find("-") != -1:
+            version[3] = version_override[version_override.find("-")+1:]
+            version_override = version_override[:version_override.find("-")]
+        tmpver = version_override.split(".")
+        for i in range(3):
+            version[i] = tmpver[i]
+    elif isinstance(version, str):
         sp = version[6:]
         if sp == "":
             sp = None
