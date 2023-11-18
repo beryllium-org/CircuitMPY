@@ -171,7 +171,7 @@ def detect_board():
             del magic
 
     if version_override is not None:
-        version[3] = None
+        version.append(None)
         if version_override.find("-") != -1:
             version[3] = version_override[version_override.find("-")+1:]
             version_override = version_override[:version_override.find("-")]
