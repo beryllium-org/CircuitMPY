@@ -121,7 +121,8 @@ def detect_board():
     ami = getuser()
     boardpath = None
     board = None
-    version = [8, 1, 0, None]  # assume 8.1
+    default_version = [8, 2, 8, None]  # assume 8.1
+    version = default_version
     version_override = None
 
     try:
@@ -171,7 +172,7 @@ def detect_board():
             del magic
 
     if version_override is not None:
-        version.append(None)
+        version = default_version
         if version_override.find("-") != -1:
             version[3] = version_override[version_override.find("-")+1:]
             version_override = version_override[:version_override.find("-")]
