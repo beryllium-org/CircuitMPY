@@ -5,7 +5,7 @@ from urllib import request
 from itertools import product
 
 autompy = None
-
+failover_version = [8, 2, 8, None]
 
 class UnsupportedMachineError(Exception):
     def __init__(self, machine_name):
@@ -46,8 +46,75 @@ def compile_mpy(source, dest, name=None, optim=3):
     if a != 0:
         raise OSError("Compilation failed")
 
+def detect_board():
+    ami = getuser()
+    boardpath = None
+    board = None
+    version = failover_version.copy()
 
-def fetch_mpy(version=[8, 1, 0], special=None, force=False, verbose=False, retry=False):
+    try:
+        board = environ["BOARD"]
+        boardpath = "build_" + board
+        try:
+            mkdir(boardpath)
+        except:
+            pass
+    except KeyError:
+        pass
+
+    try:
+        version_override = environ["MPYVER"]
+        if version_override.find("-") != -1:
+            version[3] = version_override[version_override.find("-")+1:]
+            version_override = version_override[:version_override.find("-")]
+        tmpver = version_override.split(".")
+        for i in range(3):
+            version[i] = tmpver[i]
+    except KeyError:
+        if (board is None) and (uname().system != "Windows"):
+            prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
+            directories = [
+                "CIRCUITPY",
+                "LJINUX",
+            ]
+
+            for prefix, directory in product(prefixes, directories):
+                p = f"/{prefix}/{directory}"
+                if path.exists(p):
+                    boardpath = p
+                    break
+
+        if (boardpath is None) and (uname().system == "Windows"):
+            print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
+            drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
+            for _ in drives:
+                vol = popen("vol " + _)
+                if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "LJINUX"]:
+                    boardpath = f"%s" % _
+                vol.close()
+                if boardpath is not None:
+                    break
+
+        if (boardpath is not None) and (not boardpath.startswith("build_")):
+            with open(f"{boardpath}/boot_out.txt", "r") as boot_out:
+                magic = boot_out.readlines()
+                board = magic[1][9:-1]
+                version = magic[0][23 : magic[0].find(" on ")]
+                del magic
+
+    return [boardpath, board, version]
+
+
+def fetch_mpy(version=None, special=None, force=False, verbose=False, retry=False):
+    if version is None and not retry:
+        detection = detect_board()[2]
+        if detection.find("-") != -1:
+            special = detection[detection.find("-")+1:]
+            detection = detection[:detection.find("-")]
+        version = detection.split(".")
+    elif retry:
+        version = failover_version[:3]
+        special = failover_version[3]
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/"
     sys = uname().system
     mac = uname().machine
@@ -115,73 +182,3 @@ def fetch_mpy(version=[8, 1, 0], special=None, force=False, verbose=False, retry
             else:
                 print("Download failed!")
                 return None
-
-
-def detect_board():
-    ami = getuser()
-    boardpath = None
-    board = None
-    default_version = [8, 2, 8, None]  # assume 8.1
-    version = default_version
-    version_override = None
-
-    try:
-        board = environ["BOARD"]
-        boardpath = "build_" + board
-        try:
-            mkdir(boardpath)
-        except:
-            pass
-    except KeyError:
-        pass
-
-    try:
-        version_override = environ["MPYVER"]
-    except KeyError:
-        pass
-
-    if (board is None) and (uname().system != "Windows"):
-        prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
-        directories = [
-            "CIRCUITPY",
-            "LJINUX",
-        ]
-
-        for prefix, directory in product(prefixes, directories):
-            p = f"/{prefix}/{directory}"
-            if path.exists(p):
-                boardpath = p
-                break
-
-    if (boardpath is None) and (uname().system == "Windows"):
-        print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
-        drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
-        for _ in drives:
-            vol = popen("vol " + _)
-            if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "LJINUX"]:
-                boardpath = f"%s" % _
-            vol.close()
-            if boardpath is not None:
-                break
-
-    if (boardpath is not None) and (not boardpath.startswith("build_")):
-        with open(f"{boardpath}/boot_out.txt", "r") as boot_out:
-            magic = boot_out.readlines()
-            board = magic[1][9:-1]
-            version = magic[0][23 : magic[0].find(" on ")]
-            del magic
-
-    if version_override is not None:
-        version = default_version
-        if version_override.find("-") != -1:
-            version[3] = version_override[version_override.find("-")+1:]
-            version_override = version_override[:version_override.find("-")]
-        tmpver = version_override.split(".")
-        for i in range(3):
-            version[i] = tmpver[i]
-    elif isinstance(version, str):
-        sp = version[6:]
-        if sp == "":
-            sp = None
-        version = [int(version[0]), int(version[2]), int(version[4]), sp]
-    return [boardpath, board, version]
