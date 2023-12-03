@@ -22,14 +22,7 @@ def compile_mpy(source, dest, name=None, optim=3):
     optim is the level of optimisation, set to 0 in order to debug
     """
     global autompy
-    if autompy is None:
-        detection = detect_board()[2]
-        if (detection[3] is not None) and (not detection[3].endswith("-dirty")):
-            autompy = fetch_mpy(
-                [detection[0], detection[1], detection[2]], detection[3]
-            )
-        else:  # build is dirty, we can't fetch exact mpy-cross, fetch defaults
-            autompy = fetch_mpy()
+    autompy = fetch_mpy()
     if autompy is None:
         raise OSError("Compilation failed")
     if uname().system == "Linux":
@@ -111,6 +104,13 @@ def fetch_mpy(version=None, special=None, force=False, verbose=False, retry=Fals
     elif retry:
         version = failover_version[:3]
         special = failover_version[3]
+    if special is not None and "dirty" in special:
+        print("trimming version identifier as it's dirty.")
+        try:
+            for i in range(3):
+                special = special[:special.rfind("-")]
+        except IndexError:
+            pass
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/"
     sys = uname().system
     mac = uname().machine
