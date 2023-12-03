@@ -62,45 +62,41 @@ def detect_board():
     except KeyError:
         pass
 
+    if (board is None) and (uname().system != "Windows"):
+        prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
+        directories = [
+            "CIRCUITPY",
+            "LJINUX",
+        ]
+
+        for prefix, directory in product(prefixes, directories):
+            p = f"/{prefix}/{directory}"
+            if path.exists(p):
+                boardpath = p
+                break
+
+    if (boardpath is None) and (uname().system == "Windows"):
+        print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
+        drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
+        for _ in drives:
+            vol = popen("vol " + _)
+            if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "LJINUX"]:
+                boardpath = f"%s" % _
+            vol.close()
+            if boardpath is not None:
+                break
+
+    if (boardpath is not None) and (not boardpath.startswith("build_")):
+        with open(f"{boardpath}/boot_out.txt", "r") as boot_out:
+            magic = boot_out.readlines()
+            board = magic[1][9:-1]
+            version = magic[0][23 : magic[0].find(" on ")]
+            del magic
+
     try:
-        version_override = environ["MPYVER"]
-        if version_override.find("-") != -1:
-            version[3] = version_override[version_override.find("-")+1:]
-            version_override = version_override[:version_override.find("-")]
-        tmpver = version_override.split(".")
-        for i in range(3):
-            version[i] = tmpver[i]
+        version = environ["MPYVER"]
     except KeyError:
-        if (board is None) and (uname().system != "Windows"):
-            prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
-            directories = [
-                "CIRCUITPY",
-                "LJINUX",
-            ]
-
-            for prefix, directory in product(prefixes, directories):
-                p = f"/{prefix}/{directory}"
-                if path.exists(p):
-                    boardpath = p
-                    break
-
-        if (boardpath is None) and (uname().system == "Windows"):
-            print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
-            drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
-            for _ in drives:
-                vol = popen("vol " + _)
-                if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "LJINUX"]:
-                    boardpath = f"%s" % _
-                vol.close()
-                if boardpath is not None:
-                    break
-
-        if (boardpath is not None) and (not boardpath.startswith("build_")):
-            with open(f"{boardpath}/boot_out.txt", "r") as boot_out:
-                magic = boot_out.readlines()
-                board = magic[1][9:-1]
-                version = magic[0][23 : magic[0].find(" on ")]
-                del magic
+        pass
 
     return [boardpath, board, version]
 
