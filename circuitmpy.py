@@ -98,10 +98,11 @@ def detect_board():
 def fetch_mpy(version=None, special=None, force=False, verbose=False, retry=False):
     if version is None and not retry:
         detection = detect_board()[2]
-        if detection.find("-") != -1:
-            special = detection[detection.find("-")+1:]
-            detection = detection[:detection.find("-")]
-        version = detection.split(".")
+        if isinstance(detection, str):
+            if detection.find("-") != -1:
+                special = detection[detection.find("-")+1:]
+                detection = detection[:detection.find("-")]
+            version = detection.split(".")
     elif retry:
         version = failover_version[:3]
         special = failover_version[3]
