@@ -7,6 +7,7 @@ from itertools import product
 autompy = None
 failover_version = [8, 2, 8, None]
 
+
 class UnsupportedMachineError(Exception):
     def __init__(self, machine_name):
         self.machine_name = machine_name
@@ -38,6 +39,7 @@ def compile_mpy(source, dest, name=None, optim=3):
     )
     if a != 0:
         raise OSError("Compilation failed")
+
 
 def detect_board():
     ami = getuser()
@@ -100,9 +102,11 @@ def fetch_mpy(version=None, special=None, force=False, verbose=False, retry=Fals
         detection = detect_board()[2]
         if isinstance(detection, str):
             if detection.find("-") != -1:
-                special = detection[detection.find("-")+1:]
-                detection = detection[:detection.find("-")]
+                special = detection[detection.find("-") + 1 :]
+                detection = detection[: detection.find("-")]
             version = detection.split(".")
+        else:
+            version = detection
     elif retry:
         version = failover_version[:3]
         special = failover_version[3]
@@ -110,7 +114,7 @@ def fetch_mpy(version=None, special=None, force=False, verbose=False, retry=Fals
         print("trimming version identifier as it's dirty.")
         try:
             for i in range(3):
-                special = special[:special.rfind("-")]
+                special = special[: special.rfind("-")]
         except IndexError:
             pass
     url = "https://adafruit-circuit-python.s3.amazonaws.com/bin/mpy-cross/"
