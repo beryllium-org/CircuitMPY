@@ -26,7 +26,7 @@ def compile_mpy(source, dest, name=None, optim=3):
     autompy = fetch_mpy()
     if autompy is None:
         raise OSError("Compilation failed")
-    if uname().system == "Linux":
+    if uname().system in ["Linux", "Darwin"]:
         slash = "/"
         copy = "rsync -h"
     else:
