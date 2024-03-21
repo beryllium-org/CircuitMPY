@@ -5,7 +5,7 @@ from urllib import request
 from itertools import product
 
 autompy = None
-failover_version = [8, 2, 8, None]
+failover_version = [9, 0, 0, None]
 
 
 class UnsupportedMachineError(Exception):
