@@ -61,20 +61,21 @@ def detect_board():
         prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
         try:
             with open("/tmp/CUSTOMBOARDPATH") as f:
-                prefixes.append(f.read())
+                boardpath = f.read()
         except:
             pass
-        directories = ["CIRCUITPY"]
-        try:
-            directories.append(environ["FSNAME"])
-        except KeyError:
-            pass
+        if boardpath is None:
+            directories = ["CIRCUITPY"]
+            try:
+                directories.append(environ["FSNAME"])
+            except KeyError:
+                pass
 
-        for prefix, directory in product(prefixes, directories):
-            p = f"/{prefix}/{directory}"
-            if path.exists(p):
-                boardpath = p
-                break
+            for prefix, directory in product(prefixes, directories):
+                p = f"/{prefix}/{directory}"
+                if path.exists(p):
+                    boardpath = p
+                    break
 
     if (boardpath is None) and (uname().system == "Windows"):
         print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
