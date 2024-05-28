@@ -59,6 +59,11 @@ def detect_board():
 
     if (board is None) and (uname().system != "Windows"):
         prefixes = [f"run/media/{ami}", f"media/{ami}", "media", "Volumes", "Volumes"]
+        try:
+            with open("/tmp/CUSTOMBOARDPATH") as f:
+                prefixes.append(f.read())
+        except:
+            pass
         directories = ["CIRCUITPY"]
         try:
             directories.append(environ["FSNAME"])
