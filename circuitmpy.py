@@ -50,10 +50,6 @@ def detect_board():
     try:
         board = environ["BOARD"]
         boardpath = "build_" + board
-        try:
-            mkdir(boardpath)
-        except:
-            pass
     except KeyError:
         pass
 
