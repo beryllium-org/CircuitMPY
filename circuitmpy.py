@@ -148,7 +148,7 @@ def fetch_mpy(version=None, special=None, force=False, verbose=False, retry=Fals
             url += f"-{special}"
         url += ".static.exe"
     elif sys == "Darwin":
-        url += f"macos-12/mpy-cross-macos-{version[0]}.{version[1]}.{version[2]}"
+        url += f"macos/mpy-cross-macos-{version[0]}.{version[1]}.{version[2]}"
         if special is not None:
             url += f"-{special}"
         if mac == "arm64":
