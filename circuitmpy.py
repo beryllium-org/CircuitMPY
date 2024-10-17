@@ -16,14 +16,14 @@ class UnsupportedMachineError(Exception):
         return f"The machine type {self.machine_name} is not supported"
 
 
-def compile_mpy(source, dest, name=None, optim=3):
+def compile_mpy(source, dest, name=None, optim=3, verbose=False):
     """
     Compile a .py to an .mpy
 
     optim is the level of optimisation, set to 0 in order to debug
     """
     global autompy
-    autompy = fetch_mpy()
+    autompy = fetch_mpy(verbose=verbose)
     if autompy is None:
         raise OSError("Compilation failed")
     if uname().system in ["Linux", "Darwin"]:
@@ -34,6 +34,8 @@ def compile_mpy(source, dest, name=None, optim=3):
         copy = "copy"
     if name is None:
         name = source[source.rfind(slash) + 1 : -3]
+    if verbose:
+        print(f"Target: {name}")
     a = system(
         f"./{autompy} {source} -s {name} -v -O{optim} -o {dest}".replace("/", slash)
     )
