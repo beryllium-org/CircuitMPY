@@ -5,7 +5,7 @@ from urllib import request
 from itertools import product
 
 autompy = None
-failover_version = [9, 0, 0, None]
+failover_version = [10, 2, 0, None]
 
 
 class UnsupportedMachineError(Exception):
@@ -80,7 +80,7 @@ def detect_board():
         drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
         for _ in drives:
             vol = popen("vol " + _)
-            if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "LJINUX"]:
+            if vol.readline()[:-1].split(" ")[-1].upper() in ["CIRCUITPY", "BERYLLIUM"]:
                 boardpath = f"%s" % _
             vol.close()
             if boardpath is not None:
